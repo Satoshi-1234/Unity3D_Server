@@ -1,3 +1,4 @@
+#if UNITY_SERVER || UNITY_EDITOR
 using Mirror;
 using UnityEngine;
 
@@ -19,3 +20,4 @@ public class ServerGameManager : NetworkManager
         // ゲーム開始処理（シーン遷移や初期化など）
     }
 }
+#endif
