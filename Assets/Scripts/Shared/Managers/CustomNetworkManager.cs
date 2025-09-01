@@ -6,7 +6,7 @@ public class CustomNetworkManager : NetworkAuthenticator
     [Header("識別情報")]
     public string gameId = "My3DGame";   // プロジェクト固有名に変更推奨
     public string version = "0.1.0";   // クライアント/サーバーで一致させる
-
+#if UNITY_SERVER || UNITY_EDITOR
     // --- サーバー側: 起動/停止時にハンドラ登録 ---
     public override void OnStartServer()
     {
@@ -18,7 +18,9 @@ public class CustomNetworkManager : NetworkAuthenticator
     {
         NetworkServer.UnregisterHandler<HandshakeRequest>();
     }
+#endif
 
+#if !UNITY_SERVER || UNITY_EDITOR
     // --- クライアント側: 起動/停止時にハンドラ登録 ---
     public override void OnStartClient()
     {
@@ -30,14 +32,18 @@ public class CustomNetworkManager : NetworkAuthenticator
     {
         NetworkClient.UnregisterHandler<HandshakeResponse>();
     }
+#endif
 
+#if UNITY_SERVER || UNITY_EDITOR
     // --- Mirrorの認証フック ---
     public override void OnServerAuthenticate(NetworkConnectionToClient conn)
     {
         // 何もしない：クライアントからの HandshakeRequest を待つ
         // （OnServerHandshakeRequest で Accept/Reject する）
     }
+#endif
 
+#if !UNITY_SERVER || UNITY_EDITOR
     public override void OnClientAuthenticate()
     {
         // 接続直後に HandshakeRequest を送る
@@ -45,7 +51,9 @@ public class CustomNetworkManager : NetworkAuthenticator
         Debug.Log($"[AUTH/CLIENT] send handshake: {req._gameId} v{req._version}");
         NetworkClient.Send(req);
     }
+#endif
 
+#if UNITY_SERVER || UNITY_EDITOR
     // --- サーバーが HandshakeRequest を受け取ったとき ---
     void OnServerHandshakeRequest(NetworkConnectionToClient conn, HandshakeRequest req)
     {
@@ -66,7 +74,9 @@ public class CustomNetworkManager : NetworkAuthenticator
             ServerReject(conn);   // <- Mirror標準API
         }
     }
+#endif
 
+#if !UNITY_SERVER || UNITY_EDITOR
     // --- クライアントが HandshakeResponse を受け取ったとき ---
     void OnClientHandshakeResponse(HandshakeResponse res)
     {
@@ -81,4 +91,5 @@ public class CustomNetworkManager : NetworkAuthenticator
             ClientReject();       // <- Mirror標準API
         }
     }
+#endif
 }

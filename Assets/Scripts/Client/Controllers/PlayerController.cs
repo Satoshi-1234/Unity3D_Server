@@ -1,9 +1,9 @@
-#if !UNITY_SERVER
 using Mirror;
 using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
+#if !UNITY_SERVER
     public float speed = 5f;
 
     void Update()
@@ -17,5 +17,5 @@ public class PlayerController : NetworkBehaviour
         Vector3 move = new Vector3(h, 0, v);
         transform.Translate(move * speed * Time.deltaTime);
     }
-}
 #endif
+}
