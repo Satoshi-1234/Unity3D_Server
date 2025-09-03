@@ -5,12 +5,17 @@ public class CustomNetworkManager : NetworkAuthenticator
 {
     [Header("識別情報")]
     public string gameId = "My3DGame";   // プロジェクト固有名に変更推奨
-    public string version = "0.1.0";   // クライアント/サーバーで一致させる
+    public string version = "0.1.0";     // クライアント/サーバーで一致させる
+
+    [Header("LAN 検出")]
+    public LanDiscovery discovery;       // インスペクタでアタッチ
+
+    // ========================================
+    // Mirror 標準フック（サーバー側）
+    // ========================================
 #if UNITY_SERVER || UNITY_EDITOR
-    // --- サーバー側: 起動/停止時にハンドラ登録 ---
     public override void OnStartServer()
     {
-        // HandshakeRequest が届いたら OnServerHandshakeRequest を実行するコールバックを登録
         NetworkServer.RegisterHandler<HandshakeRequest>(OnServerHandshakeRequest, false);
     }
 
@@ -20,11 +25,12 @@ public class CustomNetworkManager : NetworkAuthenticator
     }
 #endif
 
+    // ========================================
+    // Mirror 標準フック（クライアント側）
+    // ========================================
 #if !UNITY_SERVER || UNITY_EDITOR
-    // --- クライアント側: 起動/停止時にハンドラ登録 ---
     public override void OnStartClient()
     {
-        // サーバーから届く HandshakeResponse を受け取る
         NetworkClient.RegisterHandler<HandshakeResponse>(OnClientHandshakeResponse, false);
     }
 
@@ -34,62 +40,174 @@ public class CustomNetworkManager : NetworkAuthenticator
     }
 #endif
 
+    // ========================================
+    // 認証フック（サーバー）
+    // ========================================
 #if UNITY_SERVER || UNITY_EDITOR
-    // --- Mirrorの認証フック ---
     public override void OnServerAuthenticate(NetworkConnectionToClient conn)
     {
-        // 何もしない：クライアントからの HandshakeRequest を待つ
-        // （OnServerHandshakeRequest で Accept/Reject する）
+        // 何もしない: HandshakeRequest を待つ
     }
 #endif
 
+    // ========================================
+    // 認証フック（クライアント）
+    // ========================================
 #if !UNITY_SERVER || UNITY_EDITOR
     public override void OnClientAuthenticate()
     {
-        // 接続直後に HandshakeRequest を送る
         var req = new HandshakeRequest { _gameId = gameId, _version = version };
         Debug.Log($"[AUTH/CLIENT] send handshake: {req._gameId} v{req._version}");
         NetworkClient.Send(req);
     }
 #endif
 
+    // ========================================
+    // Handshake サーバー側
+    // ========================================
 #if UNITY_SERVER || UNITY_EDITOR
-    // --- サーバーが HandshakeRequest を受け取ったとき ---
     void OnServerHandshakeRequest(NetworkConnectionToClient conn, HandshakeRequest req)
     {
         bool ok = (req._gameId == gameId && req._version == version);
         string msg = ok ? "OK" : $"Mismatch (srv:{gameId} {version} / cli:{req._gameId} {req._version})";
 
-        // クライアントへ応答
         conn.Send(new HandshakeResponse { _accepted = ok, _message = msg });
 
         if (ok)
         {
             Debug.Log($"[AUTH/SERVER] accept: {conn.connectionId} {msg}");
-            ServerAccept(conn);   // <- Mirror標準API
+            ServerAccept(conn);   // Mirror API
         }
         else
         {
             Debug.LogWarning($"[AUTH/SERVER] reject: {conn.connectionId} {msg}");
-            ServerReject(conn);   // <- Mirror標準API
+            ServerReject(conn);   // Mirror API
         }
     }
 #endif
 
+    // ========================================
+    // Handshake クライアント側
+    // ========================================
 #if !UNITY_SERVER || UNITY_EDITOR
-    // --- クライアントが HandshakeResponse を受け取ったとき ---
     void OnClientHandshakeResponse(HandshakeResponse res)
     {
         if (res._accepted)
         {
             Debug.Log($"[AUTH/CLIENT] accepted: {res._message}");
-            ClientAccept();       // <- Mirror標準API
+            ClientAccept();       // Mirror API
         }
         else
         {
             Debug.LogWarning($"[AUTH/CLIENT] rejected: {res._message}");
-            ClientReject();       // <- Mirror標準API
+            ClientReject();       // Mirror API
         }
     }
 #endif
+
+    public void StartServerWithDiscovery()
+    {
+        var nm = NetworkManager.singleton;
+        if (nm == null) return;
+
+#if UNITY_SERVER
+        nm.StartServer();
+#else
+        nm.StartHost();
+#endif
+
+        if (discovery != null)
+        {
+            discovery.AdvertiseServer();
+            Debug.Log("[LAN] サーバー広告開始");
+        }
+        else
+            Debug.Log("discovery がありません");
+    }
+
+    public void StartClientWithDiscovery(string ip)
+    {
+        var nm = NetworkManager.singleton;
+        if (nm == null) return;
+
+        nm.networkAddress = ip;
+        nm.StartClient();
+        Debug.Log($"[LAN] {ip} に接続開始");
+    }
 }
+//using Mirror;
+//using UnityEngine;
+
+//public class CustomNetworkManager : NetworkAuthenticator
+//{
+//    [Header("識別情報")]
+//    public string gameId = "My3DGame";
+//    public string version = "0.1.0";
+
+//    [Header("LAN 検出")]
+//    public LanDiscovery discovery; // Inspectorでアタッチしておく
+
+//    // --------------------------
+//    // 認証コード（既存部分）
+//    // --------------------------
+//    public override void OnStartServer()
+//    {
+//        Debug.Log("[Auth] サーバー認証開始");
+//    }
+
+//    public override void OnStartClient()
+//    {
+//        Debug.Log("[Auth] クライアント認証開始");
+//    }
+
+//    public override void OnServerAuthenticate(NetworkConnectionToClient conn)
+//    {
+//        Debug.Log("[Auth] サーバー側でクライアント認証中…");
+//        ServerAccept(conn); // 認証成功
+//    }
+
+//    public override void OnClientAuthenticate()
+//    {
+//        Debug.Log("[Auth] クライアント認証中…");
+//        ClientAccept(); // 認証成功
+//    }
+
+//    // --------------------------
+//    // LANサーバー起動/接続補助
+//    // --------------------------
+//    public void StartServerWithDiscovery()
+//    {
+//        var nm = NetworkManager.singleton;
+//        if (nm == null)
+//        {
+//            Debug.LogError("[CustomNetworkManager] NetworkManager.singleton が見つかりません。シーンに NetworkManager を配置して下さい。");
+//            return;
+//        }
+
+//#if UNITY_SERVER
+//        nm.StartServer();
+//#else
+//        nm.StartHost();
+//#endif
+
+//        if (discovery != null)
+//        {
+//            discovery.AdvertiseServer();
+//            Debug.Log("[LAN] サーバー広告開始");
+//        }
+//    }
+
+//    public void StartClientWithDiscovery(string ip)
+//    {
+//        var nm = NetworkManager.singleton;
+//        if (nm == null)
+//        {
+//            Debug.LogError("[CustomNetworkManager] NetworkManager.singleton が見つかりません。");
+//            return;
+//        }
+
+//        nm.networkAddress = ip;
+//        nm.StartClient();
+//        Debug.Log($"[LAN] {ip} に接続開始");
+//    }
+//}
