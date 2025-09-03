@@ -33,13 +33,14 @@ public class UI_ServerList : MonoBehaviour
 
     void OnServerFound(ServerResponse info)
     {
+        Debug.Log($"[UI] サーバー発見: {info.EndPoint.Address}:{info.uri?.Port ?? 7777}");
+
         var btn = Instantiate(serverButtonPrefab, serverListParent);
         btn.GetComponentInChildren<Text>().text = $"{info.EndPoint.Address}:{info.uri?.Port ?? 7777}";
 
         string ip = info.EndPoint.Address.ToString();
         btn.onClick.AddListener(() =>
         {
-            // 直接 NetworkManager.singleton を使って接続
             if (NetworkManager.singleton == null)
             {
                 Debug.LogError("NetworkManager.singleton が null です。シーンに NetworkManager を配置して下さい。");

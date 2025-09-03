@@ -25,6 +25,7 @@ public class LanDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     protected override void ProcessResponse(ServerResponse response, IPEndPoint endpoint)
     {
         response.EndPoint = endpoint; // IPを保持
-        OnServerFoundEvent.Invoke(response); // イベント発火
+        Debug.Log($"[LAN] サーバー検出: {endpoint.Address}:{endpoint.Port} / URI={response.uri}");
+        OnServerFoundEvent.Invoke(response);
     }
 }
