@@ -10,11 +10,6 @@ public class UI_ServerList : MonoBehaviour
     public Transform serverListParent;
     public Button serverButtonPrefab;
 
-    //void Start()
-    //{
-    //    if (discovery != null)
-    //        discovery.OnServerFound.AddListener(OnServerFound);
-    //}
     void Awake()
     {
         if (discovery != null)
@@ -48,6 +43,14 @@ public class UI_ServerList : MonoBehaviour
                 Debug.LogError("NetworkManager.singleton が null です。シーンに NetworkManager を配置して下さい。");
                 return;
             }
+
+            var transport = NetworkManager.singleton.transport as kcp2k.KcpTransport;
+            if (transport != null)
+            {
+                transport.Port = (ushort)info._port; // サーバーの広告してきたポートに設定
+                Debug.Log($"[Client] 接続ポートを {info._port} に変更しました");
+            }
+
             NetworkManager.singleton.networkAddress = ip;
             NetworkManager.singleton.StartClient();
             Debug.Log($"[UI] {ip} に接続開始");

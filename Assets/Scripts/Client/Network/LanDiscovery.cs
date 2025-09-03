@@ -14,13 +14,14 @@ public class LanDiscovery : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
     protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint)
     {
         var nm = NetworkManager.singleton;
-
+        var transport = nm.transport as kcp2k.KcpTransport;
         return new DiscoveryResponse
         {
             _uri = transport.ServerUri(),
             // endpoint‚Í’¼Ú•ÛŽ‚Å‚«‚È‚¢‚Ì‚Åstring‰»
             _address = endpoint.Address.ToString(),
-            _port = (nm.transport as kcp2k.KcpTransport)?.Port ?? 7777,
+            _port = transport.Port,
+            //_port = (nm.transport as kcp2k.KcpTransport)?.Port ?? 7777,
             // CustomNetworkManager ‚ÌŽ¯•Êî•ñ‚ð‚±‚±‚Å—¬—p
             _gameId = (nm.authenticator as CustomNetworkManager)?.gameId ?? "Unknown",
             _version = (nm.authenticator as CustomNetworkManager)?.version ?? "0.0.0",
