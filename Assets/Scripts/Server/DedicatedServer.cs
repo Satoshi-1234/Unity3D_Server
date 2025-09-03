@@ -1,22 +1,30 @@
 using Mirror;
 using UnityEngine;
 
-
 public class DedicatedServer : MonoBehaviour
 {
-    [System.NonSerialized] public int port = 7777;
-
     void Start()
     {
-#if UNITY_SERVER && !UNITY_EDITOR
-        Transport activeTransport = Transport.active;
-        if (activeTransport is kcp2k.KcpTransport kcp)
-        {
-            kcp.Port = (ushort)port;
-        }
+#if UNITY_SERVER || !UNITY_EDITOR
+        Debug.Log("[DedicatedServer] Headless server starting...");
+        var nm = NetworkManager.singleton;
 
-        Debug.Log($"[DedicatedServer] Starting server on port {port}...");
-        NetworkManager.singleton.StartServer();
+        if (nm != null)
+        {
+            // Authenticator Ç™ CustomNetworkManager ÇÃèÍçá
+            if (nm.authenticator is CustomNetworkManager custom)
+            {
+                custom.StartServerWithDiscovery();
+            }
+            else
+            {
+                nm.StartServer();
+            }
+        }
+        else
+        {
+            Debug.LogError("[DedicatedServer] NetworkManager not found!");
+        }
 #endif
     }
 }
