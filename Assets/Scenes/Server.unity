@@ -218,6 +218,10 @@ PrefabInstance:
       value: CustomAuth
       objectReference: {fileID: 0}
     - target: {fileID: 4685249694692564871, guid: 3f8ed9dd2d89acb41ad210941a59f565, type: 3}
+      propertyPath: version
+      value: 0.1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4685249694692564871, guid: 3f8ed9dd2d89acb41ad210941a59f565, type: 3}
       propertyPath: discovery
       value: 
       objectReference: {fileID: 2044616066}

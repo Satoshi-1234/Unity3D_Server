@@ -31,14 +31,16 @@ public class UI_ServerList : MonoBehaviour
         Debug.Log("[LAN] サーバー検索開始");
     }
 
-    void OnServerFound(ServerResponse info)
+    void OnServerFound(DiscoveryResponse info)
     {
-        Debug.Log($"[UI] サーバー発見: {info.EndPoint.Address}:{info.uri?.Port ?? 7777}");
+        Debug.Log($"[UI] サーバー発見: {info._serverName} v{info._version} " +
+                  $"({info._playerCount}/{info._maxPlayers}) at {info._address}");
 
         var btn = Instantiate(serverButtonPrefab, serverListParent);
-        btn.GetComponentInChildren<Text>().text = $"{info.EndPoint.Address}:{info.uri?.Port ?? 7777}";
+        btn.GetComponentInChildren<Text>().text =
+            $"{info._serverName} | v{info._version} | {info._playerCount}/{info._maxPlayers}";
 
-        string ip = info.EndPoint.Address.ToString();
+        string ip = info._address;
         btn.onClick.AddListener(() =>
         {
             if (NetworkManager.singleton == null)

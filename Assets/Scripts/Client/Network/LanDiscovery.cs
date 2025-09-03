@@ -4,28 +4,36 @@ using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
 
-// Mirror の NetworkDiscoveryBase を継承
-public class LanDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
+// Mirror の NetworkDiscoveryBase を継承nse>
+public class LanDiscovery : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResponse>
 {
     [System.Serializable]
-    public class ServerFoundEvent : UnityEvent<ServerResponse> { }
+    public class ServerFoundEvent : UnityEvent<DiscoveryResponse> { }
     public ServerFoundEvent OnServerFoundEvent = new ServerFoundEvent();
 
-    // サーバーが広告する情報を返す
-    protected override ServerResponse ProcessRequest(ServerRequest request, IPEndPoint endpoint)
+    protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint)
     {
-        return new ServerResponse
+        var nm = NetworkManager.singleton;
+
+        return new DiscoveryResponse
         {
-            EndPoint = endpoint,
-            uri = transport.ServerUri()
+            _uri = transport.ServerUri(),
+            // endpointは直接保持できないのでstring化
+            _address = endpoint.Address.ToString(),
+            _port = (nm.transport as kcp2k.KcpTransport)?.Port ?? 7777,
+            // CustomNetworkManager の識別情報をここで流用
+            _gameId = (nm.authenticator as CustomNetworkManager)?.gameId ?? "Unknown",
+            _version = (nm.authenticator as CustomNetworkManager)?.version ?? "0.0.0",
+            _playerCount = nm.numPlayers,
+            _maxPlayers = nm.maxConnections,
+            _serverName = System.Environment.MachineName // PC名をサーバー名に設定
         };
     }
 
-    // クライアントがサーバーを見つけたとき呼ばれる
-    protected override void ProcessResponse(ServerResponse response, IPEndPoint endpoint)
+    protected override void ProcessResponse(DiscoveryResponse response, IPEndPoint endpoint)
     {
-        response.EndPoint = endpoint; // IPを保持
-        Debug.Log($"[LAN] サーバー検出: {endpoint.Address}:{endpoint.Port} / URI={response.uri}");
+        Debug.Log($"[LAN] サーバー検出: {response._serverName} ({response._gameId} v{response._version}) " +
+                  $"Players {response._playerCount}/{response._maxPlayers}");
         OnServerFoundEvent.Invoke(response);
     }
 }
