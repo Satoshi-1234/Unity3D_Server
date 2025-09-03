@@ -3,13 +3,16 @@ using UnityEngine.UI;
 using Mirror.Discovery;
 using Mirror;
 using static LanDiscovery;
+using Telepathy;
+using System.Collections.Generic;
 
 public class UI_ServerList : MonoBehaviour
 {
     public LanDiscovery discovery;
     public Transform serverListParent;
     public Button serverButtonPrefab;
-
+    // 既に追加したサーバーを管理
+    private Dictionary<string, Button> servers = new Dictionary<string, Button>();
     void Awake()
     {
         if (discovery != null)
@@ -20,7 +23,7 @@ public class UI_ServerList : MonoBehaviour
         // 既存リスト消去
         foreach (Transform child in serverListParent)
             Destroy(child.gameObject);
-
+        servers.Clear();
         // 検索開始
         discovery?.StartDiscovery();
         Debug.Log("[LAN] サーバー検索開始");
@@ -28,6 +31,15 @@ public class UI_ServerList : MonoBehaviour
 
     void OnServerFound(DiscoveryResponse info)
     {
+        string key = $"{info._address}:{info._port}";
+
+        if (servers.ContainsKey(key))
+        {
+            // 既にあるサーバー → 情報更新
+            servers[key].GetComponentInChildren<Text>().text =
+                $"{info._serverName} | v{info._version} | {info._playerCount}/{info._maxPlayers}";
+            return;
+        }
         Debug.Log($"[UI] サーバー発見: {info._serverName} v{info._version} " +
                   $"({info._playerCount}/{info._maxPlayers}) at {info._address}");
 
@@ -55,5 +67,7 @@ public class UI_ServerList : MonoBehaviour
             NetworkManager.singleton.StartClient();
             Debug.Log($"[UI] {ip} に接続開始");
         });
+        servers[key] = btn;
+        Debug.Log($"[UI] サーバー追加: {key}");
     }
 }
