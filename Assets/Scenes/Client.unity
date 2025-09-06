@@ -450,7 +450,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 371890405984343656, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
       propertyPath: m_Name
-      value: NetworkManager (1)
+      value: ClientNetworkManager
       objectReference: {fileID: 0}
     - target: {fileID: 9174965230050786437, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
       propertyPath: m_LocalPosition.x
@@ -492,7 +492,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 9056185749272759367, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -1,38 +1,10 @@
 ﻿using Mirror;
 using UnityEngine;
-
-//public class DedicatedServer : MonoBehaviour
-//{
-//    void Start()
-//    {
-//#if UNITY_SERVER || !UNITY_EDITOR
-//        Debug.Log("[DedicatedServer] Headless server starting...");
-//        var nm = NetworkManager.singleton;
-
-//        if (nm != null)
-//        {
-//            // Authenticator が CustomNetworkManager の場合
-//            if (nm.authenticator is CustomNetworkManager custom)
-//            {
-//                custom.StartServerWithDiscovery();
-//            }
-//            else
-//            {
-//                nm.StartServer();
-//            }
-//        }
-//        else
-//        {
-//            Debug.LogError("[DedicatedServer] NetworkManager not found!");
-//        }
-//#endif
-//    }
-//}
 public class DedicatedServer : MonoBehaviour
 {
     void Start()
     {
-#if UNITY_SERVER || !UNITY_EDITOR
+#if UNITY_SERVER && !UNITY_EDITOR
         Debug.Log("[DedicatedServer] Headless server starting...");
         var nm = NetworkManager.singleton;
 

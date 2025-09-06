@@ -10,6 +10,7 @@ public class LanDiscovery : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
     [System.Serializable]
     public class ServerFoundEvent : UnityEvent<DiscoveryResponse> { }
     public ServerFoundEvent OnServerFoundEvent = new ServerFoundEvent();
+#if UNITY_SERVER || UNITY_EDITOR
 
     protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint)
     {
@@ -30,11 +31,12 @@ public class LanDiscovery : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
             _serverName = System.Environment.MachineName // PC名をサーバー名に設定
         };
     }
-
+#endif
     protected override void ProcessResponse(DiscoveryResponse response, IPEndPoint endpoint)
     {
         Debug.Log($"[LAN] サーバー検出: {response._serverName} ({response._gameId} v{response._version}) " +
                   $"Players {response._playerCount}/{response._maxPlayers}");
         OnServerFoundEvent.Invoke(response);
     }
+
 }

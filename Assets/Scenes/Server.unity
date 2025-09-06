@@ -122,29 +122,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &354279789 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4685249694692564871, guid: 3f8ed9dd2d89acb41ad210941a59f565, type: 3}
-  m_PrefabInstance: {fileID: 8204557807126083345}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c1227fead7f5a146ae6deadede20acd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2044616066 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7548744566141717916, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
-  m_PrefabInstance: {fileID: 5275336446144176538}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1e909cb80629af498f61e283db8733d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1001 &5275336446144176538
+--- !u!1001 &684143465
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -154,12 +132,8 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 371890405984343656, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
       propertyPath: m_Name
-      value: NetworkManager
+      value: ServerNetworkManager
       objectReference: {fileID: 0}
-    - target: {fileID: 5736388835260420365, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
-      propertyPath: authenticator
-      value: 
-      objectReference: {fileID: 354279789}
     - target: {fileID: 9174965230050786437, guid: 01e589aaa2d715e4a872898eddd2e604, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -224,7 +198,7 @@ PrefabInstance:
     - target: {fileID: 4685249694692564871, guid: 3f8ed9dd2d89acb41ad210941a59f565, type: 3}
       propertyPath: discovery
       value: 
-      objectReference: {fileID: 2044616066}
+      objectReference: {fileID: 0}
     - target: {fileID: 7972592784275662047, guid: 3f8ed9dd2d89acb41ad210941a59f565, type: 3}
       propertyPath: m_LocalPosition.x
       value: 672
@@ -274,5 +248,5 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 5275336446144176538}
   - {fileID: 8204557807126083345}
+  - {fileID: 684143465}
